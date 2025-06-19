@@ -281,19 +281,19 @@ function Receive-SignalMessage {
 	$websocket.Options.AddSubProtocol("chat")
 	$ct = [System.Threading.CancellationToken]::None
 	
-	Write-verbose "Verbinde zu: $uri"
+        Write-Verbose "Connecting to: $uri"
 	$websocket.ConnectAsync($uri, $ct).Wait()
 	
 	$buffer = New-Object byte[] 4096
 	$segment = [System.ArraySegment[byte]]::new($buffer)
 	
 	[System.Collections.ArrayList]$IncomingMessages = @()
-	Write-Host "Warte auf Nachricht..."
+        Write-Host "Waiting for message..."
 	while ($IncomingMessages.Count -lt $MessageCount) {
 		try {
 			$result = $websocket.ReceiveAsync($segment, $ct).Result
 			if ($result.MessageType -eq [System.Net.WebSockets.WebSocketMessageType]::Close) {
-				Write-Host "Verbindung geschlossen vom Server"
+                                Write-Host "Connection closed by server"
 				break
 			}
 			$msg = [System.Text.Encoding]::UTF8.GetString($buffer, 0, $result.Count)
@@ -311,14 +311,14 @@ function Receive-SignalMessage {
 				}
 			}
 		} catch {
-			Write-Warning "Ungültige JSON-Zeile: $msg"
-			$websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "Ende", $ct).Wait()
+                        Write-Warning "Invalid JSON line: $msg"
+                        $websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "End", $ct).Wait()
 			$websocket.Dispose()
 			return $msg
 		}
 	}
 	
-	$websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "Ende", $ct).Wait()
+        $websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "End", $ct).Wait()
 	$websocket.Dispose()
 	if ($asObject.IsPresent) {
 		return $IncomingMessages
