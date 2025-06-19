@@ -97,7 +97,7 @@ $VideoExtensions = @('3gpp', '3gpp2', '3gpp-tt', 'AV1', 'BMPEG', 'BT656', 'CelB'
 
 
 
-# Hilfsfunktion zum Senden von HTTP-Anfragen
+# Helper function for sending HTTP requests
 <#
 	.SYNOPSIS
 		Helper function for creating a Rest Api request in a defined way
@@ -178,22 +178,22 @@ function Invoke-SignalApiRequest {
 	return $response
 }
 
-# Nachricht senden
+# Send message
 <#
-	.SYNOPSIS
-		Sendet eine Nachricht an einen oder mehrere Empfänger über die Signal-API.
+        .SYNOPSIS
+                Sends a message to one or more recipients via the Signal API.
 	
 	.DESCRIPTION
 		A detailed description of the Send-SignalMessage function.
 	
-	.PARAMETER Recipients
-		Eine Liste von Empfängernummern im internationalen Format (z.B. +491234567890) oder Gruppen Id (beginend mit 'group.')
+        .PARAMETER Recipients
+                A list of recipient numbers in international format (e.g. +491234567890) or group IDs beginning with 'group.'
 	
-	.PARAMETER Message
-		Der Nachrichtentext, der gesendet werden soll.
+        .PARAMETER Message
+                The message text to send.
 	
-	.PARAMETER Path
-		Pfad zur Datei, die mitgesendent werden soll
+        .PARAMETER Path
+                Path to the file to send along
 	
 	.NOTES
 		Additional information about the function.
@@ -235,25 +235,25 @@ function Send-SignalMessage {
 	Invoke-SignalApiRequest -Method 'POST' -Endpoint '/v2/send' -Body $body
 }
 
-# Nachrichten empfangen
+# Receive messages
 <#
-	.SYNOPSIS
-		Empfängt Nachrichten für die konfigurierte Signal-Nummer.
+        .SYNOPSIS
+                Receives messages for the configured Signal number.
 	
 	.DESCRIPTION
 		A detailed description of the Receive-SignalMessages function.
 	
-	.PARAMETER MessageCount
-		Wartet auf die angegebne Anzahl an Nachrichten, bis es sich beendet.
+        .PARAMETER MessageCount
+                Waits for the specified number of messages before finishing.
 	
-	.PARAMETER asObject
-		Ergebnis wird als Array von Objekten zurückgegeben.
+        .PARAMETER asObject
+                Returns the result as an array of objects.
 	
-	.PARAMETER ExitString
-		Zeichenfolge, die als Nachricht erwartet wird, um die Konversation zu beenden und die vorherigen Nachrichten auszugeben. Zeichenfolge zwischen 3 und 20 Zeichen
+        .PARAMETER ExitString
+                String expected as a message to end the conversation and output the previous messages. String between 3 and 20 characters
 	
-	.PARAMETER NoOutput
-		Nachrichten nicht auf der Konsole ausgeben. Sinnvoll in Kombination mit asObject
+        .PARAMETER NoOutput
+                Do not output messages to the console. Useful together with asObject
 	
 	.NOTES
 		Additional information about the function.
@@ -325,52 +325,52 @@ function Receive-SignalMessage {
 	}
 }
 
-# Gerät registrieren
+# Register device
 <#
-	.SYNOPSIS
-		Registriert ein neues Gerät (Telefonnummer) im Signal-Netzwerk.
+        .SYNOPSIS
+                Registers a new device (phone number) on the Signal network.
 	
-	.DESCRIPTION
-		Diese Funktion sendet eine Registrierung an das Signal-Netzwerk für die angegebene Telefonnummer.
-		Die Registrierung unterstützt optional CAPTCHA-Validierung und den Versand des Codes per Sprachanruf.
+        .DESCRIPTION
+                This function sends a registration to the Signal network for the specified phone number.
+                The registration optionally supports CAPTCHA validation and sending the code via voice call.
 		
-		Der Ablauf ist:
-		- Die Telefonnummer wird an das Signal-Netzwerk gesendet.
-		- Optional wird ein CAPTCHA-Token mitgesendet, falls vom Server verlangt.
-		- Standardmäßig wird der Code per SMS gesendet. Mit dem Schalter -UseVoice kann stattdessen ein Anruf angefordert werden.
+                The procedure is:
+                - The phone number is sent to the Signal network.
+                - Optionally a CAPTCHA token is sent if requested by the server.
+                - By default the code is sent via SMS. With the -UseVoice switch a call can be requested instead.
 	
-	.PARAMETER Number
-		Die Telefonnummer im internationalen Format (z.B. +491234567890), die bei Signal registriert werden soll.
+        .PARAMETER Number
+                Phone number in international format (e.g. +491234567890) to register with Signal.
 	
-	.PARAMETER Captcha
-		STEP 1: CAPTCHA-Token zur Validierung gegen Spam, erforderlich bei bestimmten Netzwerkanfragen.
-		Den CAPTCHA-Token erhält man durch den Aufruf der Signal-API bzw. durch das vorherige Lösen eines CAPTCHA über eine Browser-Abfrage.
-		CAPTCH URL: https://signalcaptchas.org/registration/generate
-		F12 Drücken und die letzte URL in der Console kopieren. Den gesamten Text hinter "signalcaptcha://" kopieren (also signal-hcaptcha.5fad97...Gef)
+        .PARAMETER Captcha
+                STEP 1: CAPTCHA token for spam protection, required for certain network requests.
+                Obtain the CAPTCHA token by calling the Signal API or by solving a CAPTCHA in the browser.
+                CAPTCHA URL: https://signalcaptchas.org/registration/generate
+                Press F12 and copy the last URL from the console. Copy the entire text after "signalcaptcha://" (e.g. signal-hcaptcha.5fad97...Gef)
 	
-	.PARAMETER UseVoice
-		STEP 1: Wenn angegeben, wird der Bestätigungscode per Sprachanruf statt per SMS zugestellt. Verwenden diesen Paramter anstatt von 'CAPTCHA'
+        .PARAMETER UseVoice
+                STEP 1: If specified, the verification code is delivered via voice call instead of SMS. Use this parameter instead of 'Captcha'
 	
-	.PARAMETER Code
-		STEP 2: Nach dem ERSTEN Schritt der Registrierung wird ein Code per SMS an die verwendete Nummer gesendet. Mit CODE wird die Registierung abgeschlossen.
+        .PARAMETER Code
+                STEP 2: After the first registration step a code is sent via SMS to the used number. Complete the registration with this code.
 	
 	.EXAMPLE
 		Register-SignalDevice -Number "+491234567890" -Captcha "03AFcWeA..."
 		
-		Schritt 1: Beginn die Registrierung mit CAPTCHA-Token durch und fordert den Bestätigungscode per SMS an.
+                Step 1: Start the registration with CAPTCHA token and request the verification code via SMS.
 	
 	.EXAMPLE
 		Register-SignalDevice -Number "+491234567890" -UseVoice
 		
-		ODER Schritt 1: Beginn die Registrierung mit und fordert den Bestätigungscode per Anruf statt SMS an. Funktioniert leider nicht mit deutschen Nummern.
+                Or step 1: Start the registration and request the verification code via voice call instead of SMS. Unfortunately this does not work with German numbers.
 	
 	.EXAMPLE
 		Register-SignalDevice -Number "+491234567890" -Code
 		
-		Schritt 2: Schließt die Registriererung für die Telefonnummer ab in dem es den Code an Signal übermittelt.
+                Step 2: Complete the registration for the phone number by submitting the code to Signal.
 	
 	.NOTES
-		Diese Funktion ist Teil eines PowerShell-Wrappers für signal-cli und nutzt intern die REST API von Signal.
+                This function is part of a PowerShell wrapper for signal-cli and uses the Signal REST API internally.
 		Weitere Infos: https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha
 #>
 function Register-SignalDevice {
@@ -416,16 +416,16 @@ function Register-SignalDevice {
 	Invoke-SignalApiRequest -Method 'POST' -Endpoint $endpoint -Body $body
 }
 
-# Gerät unregistrieren
+# Unregister device
 <#
-	.SYNOPSIS
-		vorhandene Registrierung löschen
+        .SYNOPSIS
+                Remove existing registration
 	
 	.DESCRIPTION
 		A detailed description of the Unregister-SignalDevice function.
 	
-	.PARAMETER Number
-		Die Telefonnummer im internationalen Format (z.B. +491234567890).
+        .PARAMETER Number
+                Phone number in international format (e.g. +491234567890).
 	
 	.PARAMETER DeleteAccount
 		If Delete-Account is set to true, the account will be deleted from the Signal Server. This cannot be undone without loss.
@@ -460,14 +460,14 @@ function Unregister-SignalDevice {
 }
 
 
-# Gerät verlinken und QR-Code generieren
+# Link device and generate QR code
 function Link-SignalDevice {
     <#
     .SYNOPSIS
-        Verlinkt ein Gerät und generiert einen QR-Code zur Authentifizierung.
+        Links a device and generates a QR code for authentication.
 
     .PARAMETER DeviceName
-        Der Name des zu verlinkenden Geräts.
+        Name of the device to link.
     #>
 	param (
 		[Parameter(Mandatory = $true)]
@@ -490,10 +490,10 @@ function Get-SignalAccount {
 }
 
 
-# Verfügbare Gruppen auflisten
+# List available groups
 <#
-	.SYNOPSIS
-		Listet alle verfügbaren Signal-Gruppen für die konfigurierte Nummer auf.
+        .SYNOPSIS
+                Lists all available Signal groups for the configured number.
 	
 	.DESCRIPTION
 		A detailed description of the Get-SignalGroups function.
@@ -521,16 +521,16 @@ function Get-SignalGroups {
 	Invoke-SignalApiRequest -Method 'GET' -Endpoint $endpoint -Verbose:$PSBoundParameters.ContainsKey("Verbose")
 }
 
-# Nachricht an eine Gruppe senden
+# Send message to a group
 <#
-	.SYNOPSIS
-		Sendet eine Nachricht an eine spezifische Signal-Gruppe.
+        .SYNOPSIS
+                Sends a message to a specific Signal group.
 	
 	.DESCRIPTION
 		create a new signal group
 	
-	.PARAMETER Name
-		Der Nachrichtentext, der gesendet werden soll.
+        .PARAMETER Name
+                The message text to send.
 	
 	.PARAMETER Members
 		A description of the Members parameter.
