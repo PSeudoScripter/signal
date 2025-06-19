@@ -180,20 +180,20 @@ function Invoke-SignalApiRequest {
 
 # Send message
 <#
-        .SYNOPSIS
-                Sends a message to one or more recipients via the Signal API.
+    .SYNOPSIS
+        Sends a message to one or more recipients via the Signal API.
 	
 	.DESCRIPTION
 		A detailed description of the Send-SignalMessage function.
 	
-        .PARAMETER Recipients
-                A list of recipient numbers in international format (e.g. +491234567890) or group IDs beginning with 'group.'
-	
-        .PARAMETER Message
-                The message text to send.
-	
-        .PARAMETER Path
-                Path to the file to send along
+    .PARAMETER Recipients
+            A list of recipient numbers in international format (e.g. +491234567890) or group IDs beginning with 'group.'
+
+    .PARAMETER Message
+            The message text to send.
+
+    .PARAMETER Path
+            Path to the file to send along
 	
 	.NOTES
 		Additional information about the function.
@@ -237,23 +237,23 @@ function Send-SignalMessage {
 
 # Receive messages
 <#
-        .SYNOPSIS
-                Receives messages for the configured Signal number.
+    .SYNOPSIS
+        Receives messages for the configured Signal number.
 	
 	.DESCRIPTION
 		A detailed description of the Receive-SignalMessages function.
 	
-        .PARAMETER MessageCount
-                Waits for the specified number of messages before finishing.
-	
-        .PARAMETER asObject
-                Returns the result as an array of objects.
-	
-        .PARAMETER ExitString
-                String expected as a message to end the conversation and output the previous messages. String between 3 and 20 characters
-	
-        .PARAMETER NoOutput
-                Do not output messages to the console. Useful together with asObject
+    .PARAMETER MessageCount
+            Waits for the specified number of messages before finishing.
+
+    .PARAMETER asObject
+            Returns the result as an array of objects.
+
+    .PARAMETER ExitString
+            String expected as a message to end the conversation and output the previous messages. String between 3 and 20 characters
+
+    .PARAMETER NoOutput
+            Do not output messages to the console. Useful together with asObject
 	
 	.NOTES
 		Additional information about the function.
@@ -327,50 +327,50 @@ function Receive-SignalMessage {
 
 # Register device
 <#
-        .SYNOPSIS
-                Registers a new device (phone number) on the Signal network.
-	
-        .DESCRIPTION
-                This function sends a registration to the Signal network for the specified phone number.
-                The registration optionally supports CAPTCHA validation and sending the code via voice call.
-		
-                The procedure is:
-                - The phone number is sent to the Signal network.
-                - Optionally a CAPTCHA token is sent if requested by the server.
-                - By default the code is sent via SMS. With the -UseVoice switch a call can be requested instead.
-	
-        .PARAMETER Number
-                Phone number in international format (e.g. +491234567890) to register with Signal.
-	
-        .PARAMETER Captcha
-                STEP 1: CAPTCHA token for spam protection, required for certain network requests.
-                Obtain the CAPTCHA token by calling the Signal API or by solving a CAPTCHA in the browser.
-                CAPTCHA URL: https://signalcaptchas.org/registration/generate
-                Press F12 and copy the last URL from the console. Copy the entire text after "signalcaptcha://" (e.g. signal-hcaptcha.5fad97...Gef)
-	
-        .PARAMETER UseVoice
-                STEP 1: If specified, the verification code is delivered via voice call instead of SMS. Use this parameter instead of 'Captcha'
-	
-        .PARAMETER Code
-                STEP 2: After the first registration step a code is sent via SMS to the used number. Complete the registration with this code.
+    .SYNOPSIS
+        Registers a new device (phone number) on the Signal network.
+
+    .DESCRIPTION
+        This function sends a registration to the Signal network for the specified phone number.
+        The registration optionally supports CAPTCHA validation and sending the code via voice call.
+
+        The procedure is:
+        - The phone number is sent to the Signal network.
+        - Optionally a CAPTCHA token is sent if requested by the server.
+        - By default the code is sent via SMS. With the -UseVoice switch a call can be requested instead.
+
+    .PARAMETER Number
+        Phone number in international format (e.g. +491234567890) to register with Signal.
+
+    .PARAMETER Captcha
+        STEP 1: CAPTCHA token for spam protection, required for certain network requests.
+        Obtain the CAPTCHA token by calling the Signal API or by solving a CAPTCHA in the browser.
+        CAPTCHA URL: https://signalcaptchas.org/registration/generate
+        Press F12 and copy the last URL from the console. Copy the entire text after "signalcaptcha://" (e.g. signal-hcaptcha.5fad97...Gef)
+
+    .PARAMETER UseVoice
+        STEP 1: If specified, the verification code is delivered via voice call instead of SMS. Use this parameter instead of 'Captcha'
+
+    .PARAMETER Code
+        STEP 2: After the first registration step a code is sent via SMS to the used number. Complete the registration with this code.
 	
 	.EXAMPLE
 		Register-SignalDevice -Number "+491234567890" -Captcha "03AFcWeA..."
 		
-                Step 1: Start the registration with CAPTCHA token and request the verification code via SMS.
+            Step 1: Start the registration with CAPTCHA token and request the verification code via SMS.
 	
 	.EXAMPLE
 		Register-SignalDevice -Number "+491234567890" -UseVoice
 		
-                Or step 1: Start the registration and request the verification code via voice call instead of SMS. Unfortunately this does not work with German numbers.
+            Or step 1: Start the registration and request the verification code via voice call instead of SMS. Unfortunately this does not work with German numbers.
 	
 	.EXAMPLE
 		Register-SignalDevice -Number "+491234567890" -Code
 		
-                Step 2: Complete the registration for the phone number by submitting the code to Signal.
+            Step 2: Complete the registration for the phone number by submitting the code to Signal.
 	
 	.NOTES
-                This function is part of a PowerShell wrapper for signal-cli and uses the Signal REST API internally.
+        This function is part of a PowerShell wrapper for signal-cli and uses the Signal REST API internally.
 		Weitere Infos: https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha
 #>
 function Register-SignalDevice {
@@ -492,8 +492,8 @@ function Get-SignalAccount {
 
 # List available groups
 <#
-        .SYNOPSIS
-                Lists all available Signal groups for the configured number.
+    .SYNOPSIS
+        Lists all available Signal groups for the configured number.
 	
 	.DESCRIPTION
 		A detailed description of the Get-SignalGroups function.
@@ -523,14 +523,14 @@ function Get-SignalGroups {
 
 # Send message to a group
 <#
-        .SYNOPSIS
-                Sends a message to a specific Signal group.
+    .SYNOPSIS
+        Sends a message to a specific Signal group.
 	
 	.DESCRIPTION
 		create a new signal group
 	
-        .PARAMETER Name
-                The message text to send.
+    .PARAMETER Name
+        The message text to send.
 	
 	.PARAMETER Members
 		A description of the Members parameter.
@@ -647,7 +647,7 @@ function Update-SignalGroup {
 		A description of the GroupId parameter.
 	
 	.EXAMPLE
-				PS C:\> Remove-SignalGroups -GroupId 'Value1'
+		PS C:\> Remove-SignalGroups -GroupId 'Value1'
 	
 	.NOTES
 		Additional information about the function.
