@@ -25,23 +25,22 @@ if ($IsWindows) {
 #region SignalConfiguration function
 
 <#
-	.SYNOPSIS
-		create new signal configuration with signal number and url to signal docker container
-	
-	.DESCRIPTION
-		A detailed description of the New-SignalConfigurationx function.
-	
-	.PARAMETER SenderNumber
-		Registred sender number as E.164 format
-	
-	.PARAMETER SignalServerURL
-		URL and Port for signal server like: http://mysignaldocker.local:8080
-	
-	.EXAMPLE
-		PS C:\> New-SignalConfigurationx -SignalNumber 'Value1' -SignalServerURL 'Value2'
-	
-	.NOTES
-		Additional information about the function.
+.SYNOPSIS
+    Creates or overwrites the Signal module configuration file.
+
+.DESCRIPTION
+    Stores the REST API URL and the registered sender number in an XML file that
+    is loaded automatically by the module.
+
+.PARAMETER SenderNumber
+    Phone number in E.164 format used as sender.
+
+.PARAMETER SignalServerURL
+    URL of the signal-cli REST API instance, e.g. http://localhost:8080
+
+.EXAMPLE
+    PS C:\> New-SignalConfiguration -SenderNumber '+491234567890' -SignalServerURL 'http://localhost:8080'
+    Creates the configuration file for the module.
 #>
 function New-SignalConfiguration {
 	param
@@ -60,6 +59,18 @@ function New-SignalConfiguration {
 	Export-Clixml -Path $SignalConfigFile.Fullname -InputObject $SignalConfig -Force -NoClobber
 	Import-Module $PSCommandPath -force -DisableNameChecking
 }
+
+<#
+.SYNOPSIS
+    Returns the current Signal module configuration.
+
+.DESCRIPTION
+    Reads the configuration XML file and returns its contents. When no
+    configuration exists, a warning is shown unless -Quiet is used.
+
+.PARAMETER Quiet
+    Suppresses warnings when the configuration file is missing.
+#>
 
 function Get-SignalConfiguration {
 	[CmdletBinding(PositionalBinding = $false,
@@ -99,32 +110,27 @@ $VideoExtensions = @('3gpp', '3gpp2', '3gpp-tt', 'AV1', 'BMPEG', 'BT656', 'CelB'
 
 # Helper function for sending HTTP requests
 <#
-	.SYNOPSIS
-		Helper function for creating a Rest Api request in a defined way
-	
-	.DESCRIPTION
-		A detailed description of the Invoke-SignalApiRequest function.
-	
-	.PARAMETER Method
-		A description of the Method parameter.
-	
-	.PARAMETER Endpoint
-		A description of the Endpoint parameter.
-	
-	.PARAMETER Headers
-		A description of the Headers parameter.
-	
-	.PARAMETER Body
-		A description of the Body parameter.
-	
-	.PARAMETER Header
-		Additional header
-	
-	.EXAMPLE
-		PS C:\> Invoke-SignalApiRequest -Method 'GET' -Endpoint 'Value2'
-	
-	.NOTES
-		Additional information about the function.
+.SYNOPSIS
+    Sends an HTTP request to the configured Signal REST API.
+
+.DESCRIPTION
+    Wraps Invoke-RestMethod and automatically converts the body to JSON. The
+    function is used internally by all other cmdlets.
+
+.PARAMETER Method
+    HTTP method such as GET, POST, PUT or DELETE.
+
+.PARAMETER Endpoint
+    API endpoint path beginning with '/'.
+
+.PARAMETER Headers
+    Optional hashtable of additional HTTP headers.
+
+.PARAMETER Body
+    Hashtable representing the JSON body to send.
+
+.EXAMPLE
+    PS C:\> Invoke-SignalApiRequest -Method 'GET' -Endpoint '/v1/accounts'
 #>
 function Invoke-SignalApiRequest {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -180,23 +186,21 @@ function Invoke-SignalApiRequest {
 
 # Send message
 <#
-    .SYNOPSIS
-        Sends a message to one or more recipients via the Signal API.
-	
-	.DESCRIPTION
-		A detailed description of the Send-SignalMessage function.
-	
-    .PARAMETER Recipients
-            A list of recipient numbers in international format (e.g. +491234567890) or group IDs beginning with 'group.'
+.SYNOPSIS
+    Sends a text or attachment to one or more recipients.
 
-    .PARAMETER Message
-            The message text to send.
+.DESCRIPTION
+    Calls '/v2/send' on the Signal REST API to deliver a message to phone
+    numbers or groups. Attachments are automatically converted to base64.
 
-    .PARAMETER Path
-            Path to the file to send along
-	
-	.NOTES
-		Additional information about the function.
+.PARAMETER Recipients
+    One or more phone numbers or group IDs to send to.
+
+.PARAMETER Message
+    Optional text message body.
+
+.PARAMETER Path
+    Optional path to a file that will be sent as an attachment.
 #>
 function Send-SignalMessage {
 	param
@@ -237,26 +241,25 @@ function Send-SignalMessage {
 
 # Receive messages
 <#
-    .SYNOPSIS
-        Receives messages for the configured Signal number.
-	
-	.DESCRIPTION
-		A detailed description of the Receive-SignalMessages function.
-	
-    .PARAMETER MessageCount
-            Waits for the specified number of messages before finishing.
+.SYNOPSIS
+    Listens for incoming messages for the configured number.
 
-    .PARAMETER asObject
-            Returns the result as an array of objects.
+.DESCRIPTION
+    Opens the websocket endpoint '/v1/receive/<number>' and waits until the
+    specified amount of messages has been received or the exit word is detected.
 
-    .PARAMETER ExitString
-            String expected as a message to end the conversation and output the previous messages. String between 3 and 20 characters
+.PARAMETER MessageCount
+    Number of messages to wait for. Defaults to 1.
 
-    .PARAMETER NoOutput
-            Do not output messages to the console. Useful together with asObject
-	
-	.NOTES
-		Additional information about the function.
+.PARAMETER asObject
+    Return the received messages as PowerShell objects instead of writing them
+    to the console.
+
+.PARAMETER ExitWord
+    If this word is received the function stops reading from the websocket.
+
+.PARAMETER NoOutput
+    Suppress console output while waiting for messages.
 #>
 function Receive-SignalMessage {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -418,23 +421,21 @@ function Register-SignalDevice {
 
 # Unregister device
 <#
-        .SYNOPSIS
-                Remove existing registration
-	
-	.DESCRIPTION
-		A detailed description of the Unregister-SignalDevice function.
-	
-        .PARAMETER Number
-                Phone number in international format (e.g. +491234567890).
-	
-	.PARAMETER DeleteAccount
-		If Delete-Account is set to true, the account will be deleted from the Signal Server. This cannot be undone without loss.
-	
-	.PARAMETER DeleteLocalData
-		A description of the DeleteLocalData parameter.
-	
-	.NOTES
-		Additional information about the function.
+.SYNOPSIS
+    Removes the registration for a phone number from the Signal service.
+
+.DESCRIPTION
+    Allows deleting the registration and optionally the entire account on the
+    server. Local data can also be removed.
+
+.PARAMETER Number
+    Phone number in international format to unregister.
+
+.PARAMETER DeleteAccount
+    If set, the Signal account is permanently deleted on the server.
+
+.PARAMETER DeleteLocalData
+    Remove local data for the device as well.
 #>
 function Unregister-SignalDevice {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -464,10 +465,14 @@ function Unregister-SignalDevice {
 function Link-SignalDevice {
     <#
     .SYNOPSIS
-        Links a device and generates a QR code for authentication.
+        Links another device to the current account.
+
+    .DESCRIPTION
+        Calls '/v1/qrcodelink' to generate a QR code that can be scanned by the
+        Signal client on the device you want to link.
 
     .PARAMETER DeviceName
-        Name of the device to link.
+        Name of the new device shown in the linked devices list.
     #>
 	param (
 		[Parameter(Mandatory = $true)]
@@ -478,6 +483,15 @@ function Link-SignalDevice {
         $endpoint = "/v1/qrcodelink?device_name=$encodedName"
         Invoke-SignalApiRequest -Method 'GET' -Endpoint $endpoint
 }
+
+<#
+.SYNOPSIS
+    Retrieves information about the currently registered account.
+
+.DESCRIPTION
+    Calls /v1/accounts on the REST API and returns account metadata,
+    including linked devices.
+#>
 
 function Get-SignalAccount {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -493,16 +507,14 @@ function Get-SignalAccount {
 # List available groups
 <#
     .SYNOPSIS
-        Lists all available Signal groups for the configured number.
-	
-	.DESCRIPTION
-		A detailed description of the Get-SignalGroups function.
-	
-	.PARAMETER GroupId
-		A description of the GroupId parameter.
-	
-	.NOTES
-		Additional information about the function.
+        Lists Signal groups for the configured account.
+
+    .DESCRIPTION
+        Retrieves group metadata from '/v1/groups'. When a GroupId is provided
+        only that specific group is returned.
+
+    .PARAMETER GroupId
+        Optional ID of a group to fetch. If omitted all groups are listed.
 #>
 function Get-SignalGroups {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -521,31 +533,27 @@ function Get-SignalGroups {
 	Invoke-SignalApiRequest -Method 'GET' -Endpoint $endpoint -Verbose:$PSBoundParameters.ContainsKey("Verbose")
 }
 
-# Send message to a group
+# Create a Signal group
 <#
     .SYNOPSIS
-        Sends a message to a specific Signal group.
-	
-	.DESCRIPTION
-		create a new signal group
-	
+        Creates a new Signal group.
+
+    .DESCRIPTION
+        Sends a POST request to '/v1/groups' to create the group with the given
+        name, members and settings.
+
     .PARAMETER Name
-        The message text to send.
-	
-	.PARAMETER Members
-		A description of the Members parameter.
-	
-	.PARAMETER Description
-		A description of the Description parameter.
-	
-	.PARAMETER ExpirationTime
-		Expiration Time in Seconds. Default is 0
-	
-	.PARAMETER Number
-		A description of the Number parameter.
-	
-	.NOTES
-		Additional information about the function.
+        Name of the new group.
+
+    .PARAMETER Members
+        Array of phone numbers to add to the group.
+
+    .PARAMETER Description
+        Optional group description.
+
+    .PARAMETER ExpirationTime
+        Message expiration time in seconds. Use 0 to disable disappearing
+        messages.
 #>
 function New-SignalGroup {
 	param
@@ -575,32 +583,32 @@ function New-SignalGroup {
 }
 
 <#
-	.SYNOPSIS
-		Update the state of a Signal Group.
-	
-	.DESCRIPTION
-		Update specific singal group
-	
-	.PARAMETER Groupid
-		A description of the Groupid parameter.
-	
-	.PARAMETER Name
-		A description of the Name parameter.
-	
-	.PARAMETER Description
-		A description of the Description parameter.
-	
-	.PARAMETER ExpirationTime
-		A description of the ExpirationTime parameter.
-	
-	.PARAMETER FilePath
-		Path to photo for avatar. It should be at least 160x160 pixels in size. The maximum file size is 5MB, and the image can be in JPG, PNG, or GIF format.
-	
-	.EXAMPLE
-		PS C:\> Update-SignalGroup
-	
-	.NOTES
-		Additional information about the function.
+        .SYNOPSIS
+                Updates the properties of an existing Signal group.
+
+        .DESCRIPTION
+                Sends a PUT request to '/v1/groups/<number>/<groupId>' to change
+                group metadata such as name, description, avatar or expiration
+                time.
+
+        .PARAMETER GroupID
+                Identifier of the group to update.
+
+        .PARAMETER Name
+                New name for the group.
+
+        .PARAMETER Description
+                New group description.
+
+        .PARAMETER ExpirationTime
+                New message expiration time in seconds.
+
+        .PARAMETER Path
+                Path to an avatar image (JPG, PNG or GIF, max 5 MB).
+
+        .EXAMPLE
+                PS C:\> Update-SignalGroup -GroupID $id -Name "New Name"
+                Renames the group.
 #>
 function Update-SignalGroup {
 	param
@@ -637,20 +645,18 @@ function Update-SignalGroup {
 }
 
 <#
-	.SYNOPSIS
-		A brief description of the Remove-SignalGroups function.
-	
-	.DESCRIPTION
-		Delete the specified Signal Group.
-	
-	.PARAMETER GroupId
-		A description of the GroupId parameter.
-	
-	.EXAMPLE
-		PS C:\> Remove-SignalGroups -GroupId 'Value1'
-	
-	.NOTES
-		Additional information about the function.
+        .SYNOPSIS
+                Deletes a Signal group from the account.
+
+        .DESCRIPTION
+                Sends a DELETE request to '/v1/groups/<number>/<groupId>' to
+                remove the specified group.
+
+        .PARAMETER GroupId
+                Identifier of the group to delete.
+
+        .EXAMPLE
+                PS C:\> Remove-SignalGroups -GroupId $id
 #>
 function Remove-SignalGroups {
 	[CmdletBinding(ConfirmImpact = 'None',
