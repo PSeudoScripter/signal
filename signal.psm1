@@ -11,9 +11,9 @@
 
 # Path for configuration files
 if ($IsWindows) {
-	$SignalConfigFile = [System.IO.FileInfo]::new((Join-Path (Join-Path $env:LOCALAPPDATA "Signal Module") "SignalConfig.xml"))
+	$SignalConfigFile = [System.IO.FileInfo]::new((Join-Path $env:LOCALAPPDATA "Signal Module" "SignalConfig.xml"))
 }elseif ($isLinux -or $IsMacOS) {
-	$SignalConfigFile = [System.IO.FileInfo]::new((Join-Path (Join-Path $HOME ".signalmodule") "SignalConfig.xml"))
+	$SignalConfigFile = [System.IO.FileInfo]::new((Join-Path $HOME ".signalmodule" "SignalConfig.xml"))
 } else {
 	Write-Host "is Windows: $isWindows"
 	Write-Host "is Linux: $isLinux"
