@@ -19,7 +19,7 @@
 	RootModule = 'signal.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '1.0.0.0'
+	ModuleVersion = '1.0.0'
 	
 	# ID used to uniquely identify this module
 	GUID = '53b68b57-1a28-47cd-885e-68008d4c0c44'

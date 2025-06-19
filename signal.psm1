@@ -675,7 +675,7 @@ function Remove-SignalGroups {
 }
 
 # Get information about the REST API
-<@
+<#
 	.SYNOPSIS
 	    Retrieves version information of the running Signal REST API.
 
@@ -699,7 +699,7 @@ function Get-SignalAbout {
 }
 
 # List linked devices
-<@
+<#
 	.SYNOPSIS
 	    Lists devices linked to the configured account.
 
@@ -732,7 +732,7 @@ function Get-SignalDevices {
 }
 
 # Remove linked device
-<@
+<#
 	.SYNOPSIS
 	    Unlinks a device from the Signal account.
 
