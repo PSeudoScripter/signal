@@ -288,12 +288,12 @@ function Receive-SignalMessage {
 	$segment = [System.ArraySegment[byte]]::new($buffer)
 	
 	[System.Collections.ArrayList]$IncomingMessages = @()
-        Write-Host "Waiting for message..."
+    Write-Host "Waiting for message..."
 	while ($IncomingMessages.Count -lt $MessageCount) {
 		try {
 			$result = $websocket.ReceiveAsync($segment, $ct).Result
 			if ($result.MessageType -eq [System.Net.WebSockets.WebSocketMessageType]::Close) {
-                                Write-Host "Connection closed by server"
+				Write-Host "Connection closed by server"
 				break
 			}
 			$msg = [System.Text.Encoding]::UTF8.GetString($buffer, 0, $result.Count)
@@ -311,14 +311,14 @@ function Receive-SignalMessage {
 				}
 			}
 		} catch {
-                        Write-Warning "Invalid JSON line: $msg"
-                        $websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "End", $ct).Wait()
+            Write-Warning "Invalid JSON line: $msg"
+            $websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "End", $ct).Wait()
 			$websocket.Dispose()
 			return $msg
 		}
 	}
 	
-        $websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "End", $ct).Wait()
+    $websocket.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "End", $ct).Wait()
 	$websocket.Dispose()
 	if ($asObject.IsPresent) {
 		return $IncomingMessages
