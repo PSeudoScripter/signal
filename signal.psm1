@@ -25,22 +25,22 @@ if ($IsWindows) {
 #region SignalConfiguration function
 
 <#
-.SYNOPSIS
-    Creates or overwrites the Signal module configuration file.
+	.SYNOPSIS
+	    Creates or overwrites the Signal module configuration file.
 
-.DESCRIPTION
-    Stores the REST API URL and the registered sender number in an XML file that
-    is loaded automatically by the module.
+	.DESCRIPTION
+	    Stores the REST API URL and the registered sender number in an XML file that
+	    is loaded automatically by the module.
 
-.PARAMETER SenderNumber
-    Phone number in E.164 format used as sender.
+	.PARAMETER SenderNumber
+	    Phone number in E.164 format used as sender.
 
-.PARAMETER SignalServerURL
-    URL of the signal-cli REST API instance, e.g. http://localhost:8080
+	.PARAMETER SignalServerURL
+	    URL of the signal-cli REST API instance, e.g. http://mysignaldocker.local:8080
 
-.EXAMPLE
-    PS C:\> New-SignalConfiguration -SenderNumber '+491234567890' -SignalServerURL 'http://localhost:8080'
-    Creates the configuration file for the module.
+	.EXAMPLE
+	    PS C:\> New-SignalConfiguration -SenderNumber '+491234567890' -SignalServerURL 'http://mysignaldocker.local:8080'
+	    Creates the configuration file for the module.
 #>
 function New-SignalConfiguration {
 	param
@@ -61,15 +61,15 @@ function New-SignalConfiguration {
 }
 
 <#
-.SYNOPSIS
-    Returns the current Signal module configuration.
+	.SYNOPSIS
+	    Returns the current Signal module configuration.
 
-.DESCRIPTION
-    Reads the configuration XML file and returns its contents. When no
-    configuration exists, a warning is shown unless -Quiet is used.
+	.DESCRIPTION
+	    Reads the configuration XML file and returns its contents. When no
+	    configuration exists, a warning is shown unless -Quiet is used.
 
-.PARAMETER Quiet
-    Suppresses warnings when the configuration file is missing.
+	.PARAMETER Quiet
+	    Suppresses warnings when the configuration file is missing.
 #>
 
 function Get-SignalConfiguration {
@@ -110,27 +110,27 @@ $VideoExtensions = @('3gpp', '3gpp2', '3gpp-tt', 'AV1', 'BMPEG', 'BT656', 'CelB'
 
 # Helper function for sending HTTP requests
 <#
-.SYNOPSIS
-    Sends an HTTP request to the configured Signal REST API.
+	.SYNOPSIS
+	    Sends an HTTP request to the configured Signal REST API.
 
-.DESCRIPTION
-    Wraps Invoke-RestMethod and automatically converts the body to JSON. The
-    function is used internally by all other cmdlets.
+	.DESCRIPTION
+	    Wraps Invoke-RestMethod and automatically converts the body to JSON. The
+	    function is used internally by all other cmdlets.
 
-.PARAMETER Method
-    HTTP method such as GET, POST, PUT or DELETE.
+	.PARAMETER Method
+	    HTTP method such as GET, POST, PUT or DELETE.
 
-.PARAMETER Endpoint
-    API endpoint path beginning with '/'.
+	.PARAMETER Endpoint
+	    API endpoint path beginning with '/'.
 
-.PARAMETER Headers
-    Optional hashtable of additional HTTP headers.
+	.PARAMETER Headers
+	    Optional hashtable of additional HTTP headers.
 
-.PARAMETER Body
-    Hashtable representing the JSON body to send.
+	.PARAMETER Body
+	    Hashtable representing the JSON body to send.
 
-.EXAMPLE
-    PS C:\> Invoke-SignalApiRequest -Method 'GET' -Endpoint '/v1/accounts'
+	.EXAMPLE
+	    PS C:\> Invoke-SignalApiRequest -Method 'GET' -Endpoint '/v1/accounts'
 #>
 function Invoke-SignalApiRequest {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -186,21 +186,21 @@ function Invoke-SignalApiRequest {
 
 # Send message
 <#
-.SYNOPSIS
-    Sends a text or attachment to one or more recipients.
+	.SYNOPSIS
+	    Sends a text or attachment to one or more recipients.
 
-.DESCRIPTION
-    Calls '/v2/send' on the Signal REST API to deliver a message to phone
-    numbers or groups. Attachments are automatically converted to base64.
+	.DESCRIPTION
+	    Calls '/v2/send' on the Signal REST API to deliver a message to phone
+	    numbers or groups. Attachments are automatically converted to base64.
 
-.PARAMETER Recipients
-    One or more phone numbers or group IDs to send to.
+	.PARAMETER Recipients
+	    One or more phone numbers or group IDs to send to.
 
-.PARAMETER Message
-    Optional text message body.
+	.PARAMETER Message
+	    Optional text message body.
 
-.PARAMETER Path
-    Optional path to a file that will be sent as an attachment.
+	.PARAMETER Path
+	    Optional path to a file that will be sent as an attachment.
 #>
 function Send-SignalMessage {
 	param
@@ -241,25 +241,25 @@ function Send-SignalMessage {
 
 # Receive messages
 <#
-.SYNOPSIS
-    Listens for incoming messages for the configured number.
+	.SYNOPSIS
+	    Listens for incoming messages for the configured number.
 
-.DESCRIPTION
-    Opens the websocket endpoint '/v1/receive/<number>' and waits until the
-    specified amount of messages has been received or the exit word is detected.
+	.DESCRIPTION
+	    Opens the websocket endpoint '/v1/receive/<number>' and waits until the
+	    specified amount of messages has been received or the exit word is detected.
 
-.PARAMETER MessageCount
-    Number of messages to wait for. Defaults to 1.
+	.PARAMETER MessageCount
+	    Number of messages to wait for. Defaults to 1.
 
-.PARAMETER asObject
-    Return the received messages as PowerShell objects instead of writing them
-    to the console.
+	.PARAMETER asObject
+	    Return the received messages as PowerShell objects instead of writing them
+	    to the console.
 
-.PARAMETER ExitWord
-    If this word is received the function stops reading from the websocket.
+	.PARAMETER ExitWord
+	    If this word is received the function stops reading from the websocket.
 
-.PARAMETER NoOutput
-    Suppress console output while waiting for messages.
+	.PARAMETER NoOutput
+	    Suppress console output while waiting for messages.
 #>
 function Receive-SignalMessage {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -421,21 +421,21 @@ function Register-SignalDevice {
 
 # Unregister device
 <#
-.SYNOPSIS
-    Removes the registration for a phone number from the Signal service.
+	.SYNOPSIS
+	    Removes the registration for a phone number from the Signal service.
 
-.DESCRIPTION
-    Allows deleting the registration and optionally the entire account on the
-    server. Local data can also be removed.
+	.DESCRIPTION
+	    Allows deleting the registration and optionally the entire account on the
+	    server. Local data can also be removed.
 
-.PARAMETER Number
-    Phone number in international format to unregister.
+	.PARAMETER Number
+	    Phone number in international format to unregister.
 
-.PARAMETER DeleteAccount
-    If set, the Signal account is permanently deleted on the server.
+	.PARAMETER DeleteAccount
+	    If set, the Signal account is permanently deleted on the server.
 
-.PARAMETER DeleteLocalData
-    Remove local data for the device as well.
+	.PARAMETER DeleteLocalData
+	    Remove local data for the device as well.
 #>
 function Unregister-SignalDevice {
 	[CmdletBinding(ConfirmImpact = 'None',
@@ -583,32 +583,32 @@ function New-SignalGroup {
 }
 
 <#
-        .SYNOPSIS
-                Updates the properties of an existing Signal group.
+    .SYNOPSIS
+        Updates the properties of an existing Signal group.
 
-        .DESCRIPTION
-                Sends a PUT request to '/v1/groups/<number>/<groupId>' to change
-                group metadata such as name, description, avatar or expiration
-                time.
+    .DESCRIPTION
+        Sends a PUT request to '/v1/groups/<number>/<groupId>' to change
+        group metadata such as name, description, avatar or expiration
+        time.
 
-        .PARAMETER GroupID
-                Identifier of the group to update.
+    .PARAMETER GroupID
+        Identifier of the group to update.
 
-        .PARAMETER Name
-                New name for the group.
+    .PARAMETER Name
+        New name for the group.
 
-        .PARAMETER Description
-                New group description.
+    .PARAMETER Description
+        New group description.
 
-        .PARAMETER ExpirationTime
-                New message expiration time in seconds.
+    .PARAMETER ExpirationTime
+        New message expiration time in seconds.
 
-        .PARAMETER Path
-                Path to an avatar image (JPG, PNG or GIF, max 5 MB).
+    .PARAMETER Path
+        Path to an avatar image (JPG, PNG or GIF, max 5 MB).
 
-        .EXAMPLE
-                PS C:\> Update-SignalGroup -GroupID $id -Name "New Name"
-                Renames the group.
+    .EXAMPLE
+        PS C:\> Update-SignalGroup -GroupID $id -Name "New Name"
+        Renames the group.
 #>
 function Update-SignalGroup {
 	param
@@ -645,18 +645,18 @@ function Update-SignalGroup {
 }
 
 <#
-        .SYNOPSIS
-                Deletes a Signal group from the account.
+    .SYNOPSIS
+        Deletes a Signal group from the account.
 
-        .DESCRIPTION
-                Sends a DELETE request to '/v1/groups/<number>/<groupId>' to
-                remove the specified group.
+    .DESCRIPTION
+        Sends a DELETE request to '/v1/groups/<number>/<groupId>' to
+        remove the specified group.
 
-        .PARAMETER GroupId
-                Identifier of the group to delete.
+    .PARAMETER GroupId
+        Identifier of the group to delete.
 
-        .EXAMPLE
-                PS C:\> Remove-SignalGroups -GroupId $id
+    .EXAMPLE
+        PS C:\> Remove-SignalGroups -GroupId $id
 #>
 function Remove-SignalGroups {
 	[CmdletBinding(ConfirmImpact = 'None',
