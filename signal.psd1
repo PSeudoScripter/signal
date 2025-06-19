@@ -34,7 +34,7 @@
 	Copyright = '(c) 2025. All rights reserved.'
 	
 	# Description of the functionality provided by this module
-	Description = 'Module description'
+	Description = 'Signal module for to interact with the Signal Messenger API based on bbernhard signal-cli-rest-api implementation. This module provides cmdlets to send messages, manage contacts, and perform other operations related to Signal Messenger. Github: https://github.com/bbernhard/signal-cli-rest-api, docker image: bbernhard/signal-cli-rest-api:latest, REST API Documentation: https://bbernhard.github.io/signal-cli-rest-api/'
 	
 	# Supported PSEditions
 	# CompatiblePSEditions = @('Core', 'Desktop')
