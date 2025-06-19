@@ -1,4 +1,4 @@
-# SignalAPI.psm1
+# Signal.psm1
 
 # Documentation for signal cli REST API
 # https://bbernhard.github.io/signal-cli-rest-api/
@@ -9,17 +9,94 @@
 # Git repository from bbernhard
 # https://github.com/bbernhard/signal-cli-rest-api
 
-# Konfigurationsvariablen
-$SignalServer = 'http://signal.home'
-#$SignalServer = 'http://localhost'
-$SignalPort = '8080'
-$SignalNumber = '+4915202563621'
-$SignalURL = "{0}:{1}" -f $SignalServer, $SignalPort
+# Path for configuration files
+if ($IsWindows) {
+	$SignalConfigFile = [System.IO.FileInfo]::new((Join-Path (Join-Path $env:LOCALAPPDATA "Signal Module") "SignalConfig.xml"))
+}elseif ($isLinux -or $IsMacOS) {
+	$SignalConfigFile = [System.IO.FileInfo]::new((Join-Path (Join-Path $HOME ".signalmodule") "SignalConfig.xml"))
+} else {
+	Write-Host "is Windows: $isWindows"
+	Write-Host "is Linux: $isLinux"
+	Write-Host "is MacOS: $IsMacOS"
+	Write-Error "Not supported operating system"
+	exit(3)
+}
 
+#region SignalConfiguration function
+
+<#
+	.SYNOPSIS
+		create new signal configuration with signal number and url to signal docker container
+	
+	.DESCRIPTION
+		A detailed description of the New-SignalConfigurationx function.
+	
+	.PARAMETER SenderNumber
+		Registred sender number as E.164 format
+	
+	.PARAMETER SignalServerURL
+		URL and Port for signal server like: http://mysignaldocker.local:8080
+	
+	.EXAMPLE
+		PS C:\> New-SignalConfigurationx -SignalNumber 'Value1' -SignalServerURL 'Value2'
+	
+	.NOTES
+		Additional information about the function.
+#>
+function New-SignalConfiguration {
+	param
+	(
+		[Parameter(Mandatory = $true)]
+		[ValidatePattern('\+[1-9]{1}[0-9]{9,12}')]
+		[string]$SenderNumber,
+		[Parameter(Mandatory = $true)]
+		[string]$SignalServerURL
+	)
+	
+	$SignalConfig = [pscustomobject]@{
+		"ServerURL"	      = $SignalServerURL;
+		"RegistredNumber" = $SenderNumber
+	}
+	Export-Clixml -Path $SignalConfigFile.Fullname -InputObject $SignalConfig -Force -NoClobber
+	Import-Module $PSCommandPath -force -DisableNameChecking
+}
+
+function Get-SignalConfiguration {
+	[CmdletBinding(PositionalBinding = $false,
+				SupportsPaging = $false,
+				SupportsShouldProcess = $false)]
+	[OutputType([object])]
+	param
+	(
+		[switch]$Quiet
+	)
+	
+	if (Test-Path $SignalConfigFile.Fullname) {
+		return import-clixml -Path $SignalConfigFile.Fullname -ErrorAction Stop
+	}
+	if (!$Quiet.IsPresent) {
+		Write-Warning "No configuration file found. Path: $($SignalConfigFile.Fullname)"
+		Write-Warning "Run New-SignalConfiguration -SenderNumber +491223345 -SignalServerURL 'http://mysignaldocker.local:8080'"
+	}
+}
+
+if (!(Test-Path $SignalConfigFile.Fullname)) {
+	Write-Warning "Signal is not configured. Run Get-SignalConfiguration to find out more."
+}
+
+if (!(Test-Path $SignalConfigFile.DirectoryName)) {
+	New-Item -Path $SignalConfigFile.DirectoryName -ItemType Directory -Force
+}
+#endregion
+
+$SignalConfig = Get-signalConfiguration -Quiet
 
 $ImageExtensions = @('aces', 'apng', 'avci', 'avcs', 'avif', 'bmp', 'cgm', 'dpx', 'emf', 'example', 'fits', 'g3fax', 'gif', 'heic', 'heif', 'hej2k', 'ief', 'j2c', 'jaii', 'jais', 'jls', 'jp2', 'jpg','jpeg', 'jph', 'jphc', 'jpm', 'jpx', 'jxl', 'jxr', 'jxrA', 'jxrS', 'jxs', 'jxsc', 'jxsi', 'jxss', 'ktx', 'ktx2', 'naplps', 'png', 'svg+xml', 't38', 'tiff', 'tiff-fx', 'webp', 'wmf')
 $TextExtensions = @('cache-manifest', 'calendar', 'cql', 'cql-expression', 'cql-identifier', 'css', 'csv', 'csv-schema', 'dns', 'encaprtp', 'enriched', 'example', 'fhirpath', 'flexfec', 'fwdred', 'gff3', 'grammar-ref-list', 'hl7v2', 'html', 'javascript', 'jcr-cnd', 'markdown', 'mizar', 'n3', 'parameters', 'parityfec', 'plain', 'provenance-notation', 'raptorfec', 'RED', 'rfc822-headers', 'richtext', 'rtf', 'rtp-enc-aescm128', 'rtploopback', 'rtx', 'SGML', 'shaclc', 'shex', 'spdx', 'strings', 't140', 'tab-separated-values', 'troff', 'turtle', 'ulpfec', 'uri-list', 'vcard', 'vtt', 'wgsl', 'xml', 'xml-external-parsed-entity')
 $VideoExtensions = @('3gpp', '3gpp2', '3gpp-tt', 'AV1', 'BMPEG', 'BT656', 'CelB', 'DV', 'encaprtp', 'evc', 'example', 'FFV1', 'flexfec', 'H261', 'H263', 'H263-1998', 'H263-2000', 'H264', 'H264-RCDO', 'H264-SVC', 'H265', 'H266', 'iso.segment', 'jxsv', 'lottie+json', 'matroska', 'matroska-3d', 'mj2', 'MP1S', 'MP2P', 'MP2T', 'mp4', 'MP4V-ES', 'MPV', 'mpeg', 'mpeg4-generic', 'nv', 'ogg', 'parityfec', 'pointer', 'quicktime', 'raptorfec', 'raw', 'rtp-enc-aescm128', 'rtploopback', 'rtx', 'scip', 'smpte291', 'SMPTE292M', 'ulpfec', 'vc1', 'vc2', 'VP8', 'VP9')
+
+
+
 # Hilfsfunktion zum Senden von HTTP-Anfragen
 <#
 	.SYNOPSIS
@@ -64,7 +141,12 @@ function Invoke-SignalApiRequest {
 		[hashtable]$Body = $null
 	)
 	
-	$uri = "{0}{1}" -f $SignalURL, $Endpoint
+	if (! $SignalConfig.ServerURL) {
+		write-error "Signal is not configured. Run Get-SignalConfiguration to find out more."
+		return
+	}
+	
+	$uri = "{0}{1}" -f $SignalConfig.ServerURL, $Endpoint
 	
 	$Parameters = @{
 		"StatusCodeVariable" = "StatusCode";
@@ -128,7 +210,7 @@ function Send-SignalMessage {
 	)
 	
 	$body = @{
-		number	   = $SignalNumber
+		number	   = $SignalConfig.RegistredNumber
 		recipients = $Recipients
 	}
 	if ($Message) {
@@ -192,8 +274,8 @@ function Receive-SignalMessage {
 		[switch]$NoOutput
 	)
 	
-	$endpoint = "/v1/receive/{0}" -f [uri]::EscapeDataString($SignalNumber)
-	$uri = "{0}{1}" -f $SignalURL.replace("http:", "ws:"), $endpoint
+	$endpoint = "/v1/receive/{0}" -f [uri]::EscapeDataString($SignalConfig.RegistredNumber)
+	$uri = "{0}{1}" -f $SignalConfig.ServerURL.replace("http:", "ws:"), $endpoint
 	
 	$websocket = [System.Net.WebSockets.ClientWebSocket]::new()
 	$websocket.Options.AddSubProtocol("chat")
@@ -282,7 +364,7 @@ function Receive-SignalMessage {
 		Register-SignalDevice -Number "+491234567890" -Code
 		
 		Schritt 2: Schließt die Registriererung für die Telefonnummer ab in dem es den Code an Signal übermittelt.
-
+	
 	.NOTES
 		Diese Funktion ist Teil eines PowerShell-Wrappers für signal-cli und nutzt intern die REST API von Signal.
 		Weitere Infos: https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha
@@ -296,7 +378,8 @@ function Register-SignalDevice {
 	param
 	(
 		[Parameter(ParameterSetName = 'Step1_C',
-					Mandatory = $true)]
+					Mandatory = $true,
+					DontShow = $true)]
 		[Parameter(ParameterSetName = 'Step1_V')]
 		[Parameter(ParameterSetName = 'Step2')]
 		[string]$Number,
@@ -309,7 +392,7 @@ function Register-SignalDevice {
 		[int]$Code
 	)
 	
-	$endpoint = "/v1/register/{0}" -f $Number
+	$endpoint = "/v1/register/{0}" -f $SignalConfig.RegistredNumber
 	
 	$body = @{
 		use_voice = $UseVoice.IsPresent
@@ -321,11 +404,12 @@ function Register-SignalDevice {
 	
 	if ($Code) {
 		$endpoint += "/verify/$code"
-		$body = @{"pin" = "string"}
+		$body = @{
+			"pin" = "string"
+		}
 	}
 	
 	Invoke-SignalApiRequest -Method 'POST' -Endpoint $endpoint -Body $body
-	
 }
 
 # Gerät unregistrieren
@@ -425,11 +509,11 @@ function Get-SignalGroups {
 		[string]$GroupId
 	)
 	
-	$Endpoint = "/v1/groups/{0}" -f $SignalNumber
+	$Endpoint = "/v1/groups/{0}" -f $SignalConfig.RegistredNumber
 	if ($GroupId) {
 		$endpoint += "/$GroupId"
 	}
-	Invoke-SignalApiRequest -Method 'GET' -Endpoint $endpoint
+	Invoke-SignalApiRequest -Method 'GET' -Endpoint $endpoint -Verbose:$PSBoundParameters.ContainsKey("Verbose")
 }
 
 # Nachricht an eine Gruppe senden
@@ -480,7 +564,7 @@ function New-SignalGroup {
 		}
 	}
 
-	$Endpoint = "/v1/groups/$($SignalNumber)"
+	$Endpoint = "/v1/groups/$($SignalConfig.RegistredNumber)"
 	
 	Invoke-SignalApiRequest -Method 'POST' -Endpoint $Endpoint -Body $body
 }
@@ -542,7 +626,7 @@ function Update-SignalGroup {
 		$Avatar = [Convert]::ToBase64String([IO.File]::ReadAllBytes($FullFilePath.path))
 		$body.add("base64_avatar", $Avatar)
 	}
-	$Endpoint = "/v1/groups/{0}/{1}" -f $SignalNumber, $GroupID
+	$Endpoint = "/v1/groups/{0}/{1}" -f $SignalConfig.RegistredNumber, $GroupID
 	
 	Invoke-SignalApiRequest -Method 'PUT' -Endpoint $Endpoint -Body $body
 }
@@ -574,7 +658,7 @@ function Remove-SignalGroups {
 		[string]$GroupId
 	)
 	
-	$Endpoint = "/v1/groups/{0}/{1}" -f [uri]::EscapeDataString($SignalNumber), [uri]::EscapeDataString('group.a0d6WFRZY1Y2aHBuMWhNMjljd2s3aFlqYjd3TDhPOWJhRVFTS0FHeGQyST0=')
+	$Endpoint = "/v1/groups/{0}/{1}" -f [uri]::EscapeDataString($SignalConfig.RegistredNumber), [uri]::EscapeDataString('group.a0d6WFRZY1Y2aHBuMWhNMjljd2s3aFlqYjd3TDhPOWJhRVFTS0FHeGQyST0=')
 	
 	Invoke-SignalApiRequest -Method 'DELETE' -Endpoint $Endpoint
 }
