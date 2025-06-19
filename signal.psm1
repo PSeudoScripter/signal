@@ -270,7 +270,7 @@ function Receive-SignalMessage {
 		[switch]$asObject,
 		[Parameter(Mandatory = $false,
 					HelpMessage = 'Stop Zeichenfolge')]
-		[string]$ExitString,
+		[string]$ExitWord,
 		[switch]$NoOutput
 	)
 	
@@ -304,6 +304,10 @@ function Receive-SignalMessage {
 				[void]$IncomingMessages.add($json.envelope)
 				if (!$NoOutput.IsPresent) {
 					write-host ("{3}. {0} ({1}): {2}" -f $json.envelope.sourceName, $json.envelope.sourceNumber, $json.envelope.dataMessage.message, $IncomingMessages.Count)
+					if ($json.envelope.dataMessage.message -eq $ExitWord) {
+						Write-Verbose "Exit word found. stopping"
+						break
+					}
 				}
 			}
 		} catch {
@@ -658,7 +662,7 @@ function Remove-SignalGroups {
 		[string]$GroupId
 	)
 	
-	$Endpoint = "/v1/groups/{0}/{1}" -f [uri]::EscapeDataString($SignalConfig.RegistredNumber), [uri]::EscapeDataString('group.a0d6WFRZY1Y2aHBuMWhNMjljd2s3aFlqYjd3TDhPOWJhRVFTS0FHeGQyST0=')
+	$Endpoint = "/v1/groups/{0}/{1}" -f [uri]::EscapeDataString($SignalConfig.RegistredNumber), [uri]::EscapeDataString($GroupId)
 	
 	Invoke-SignalApiRequest -Method 'DELETE' -Endpoint $Endpoint
 }
