@@ -474,8 +474,9 @@ function Link-SignalDevice {
 		[string]$DeviceName
 	)
 	
-	$endpoint = "/v1/qrcodelink?device_name=$DeviceName"
-	Invoke-SignalApiRequest -Method 'GET' -Endpoint $endpoint
+        $encodedName = [uri]::EscapeDataString($DeviceName)
+        $endpoint = "/v1/qrcodelink?device_name=$encodedName"
+        Invoke-SignalApiRequest -Method 'GET' -Endpoint $endpoint
 }
 
 function Get-SignalAccount {
