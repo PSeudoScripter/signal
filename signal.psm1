@@ -674,3 +674,88 @@ function Remove-SignalGroups {
 	Invoke-SignalApiRequest -Method 'DELETE' -Endpoint $Endpoint
 }
 
+# Get information about the REST API
+<@
+	.SYNOPSIS
+	    Retrieves version information of the running Signal REST API.
+
+	.DESCRIPTION
+	    Calls '/v1/about' on the Signal REST API and returns details
+	    about the service and the bundled signal-cli version.
+
+	.EXAMPLE
+	    PS C:\> Get-SignalAbout
+	    Shows the REST API version.
+#>
+function Get-SignalAbout {
+	    [CmdletBinding(ConfirmImpact = 'None',
+	                            PositionalBinding = $false,
+	                            SupportsPaging = $false,
+	                            SupportsShouldProcess = $false)]
+	    param ()
+
+	    $Endpoint = '/v1/about'
+	    Invoke-SignalApiRequest -Method 'GET' -Endpoint $Endpoint
+}
+
+# List linked devices
+<@
+	.SYNOPSIS
+	    Lists devices linked to the configured account.
+
+	.DESCRIPTION
+	    Calls '/v1/devices/<number>' to return all devices that are
+	    associated with the registered phone number. If a DeviceId is
+	    provided only that specific device is returned.
+
+	.PARAMETER DeviceId
+	    Optional device identifier to fetch a single device.
+
+	.EXAMPLE
+	    PS C:\> Get-SignalDevices
+	    Returns all linked devices.
+#>
+function Get-SignalDevices {
+	    [CmdletBinding(ConfirmImpact = 'None',
+	                            PositionalBinding = $false,
+	                            SupportsPaging = $false,
+	                            SupportsShouldProcess = $false)]
+	    param (
+	            [string]$DeviceId
+	    )
+
+	    $Endpoint = '/v1/devices/{0}' -f [uri]::EscapeDataString($SignalConfig.RegistredNumber)
+	    if ($DeviceId) {
+	            $Endpoint += '/' + [uri]::EscapeDataString($DeviceId)
+	    }
+	    Invoke-SignalApiRequest -Method 'GET' -Endpoint $Endpoint
+}
+
+# Remove linked device
+<@
+	.SYNOPSIS
+	    Unlinks a device from the Signal account.
+
+	.DESCRIPTION
+	    Sends a DELETE request to '/v1/devices/<number>/<deviceId>'
+	    which removes the specified device from the account.
+
+	.PARAMETER DeviceId
+	    Identifier of the device to remove.
+
+	.EXAMPLE
+	    PS C:\> Remove-SignalDevice -DeviceId '123456789'
+#>
+function Remove-SignalDevice {
+	    [CmdletBinding(ConfirmImpact = 'None',
+	                            PositionalBinding = $false,
+	                            SupportsPaging = $false,
+	                            SupportsShouldProcess = $false)]
+	    param (
+	            [Parameter(Mandatory = $true)]
+	            [string]$DeviceId
+	    )
+
+	    $Endpoint = '/v1/devices/{0}/{1}' -f [uri]::EscapeDataString($SignalConfig.RegistredNumber), [uri]::EscapeDataString($DeviceId)
+	    Invoke-SignalApiRequest -Method 'DELETE' -Endpoint $Endpoint
+}
