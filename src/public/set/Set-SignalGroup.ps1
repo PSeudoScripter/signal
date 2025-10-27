@@ -3,28 +3,71 @@
         Updates the properties of an existing Signal group.
 
     .DESCRIPTION
-        Sends a PUT request to '/v1/groups/<number>/<groupId>' to change
-        group metadata such as name, description, avatar or expiration
-        time.
+        Modifies the properties of an existing Signal group by sending a PUT request
+        to the Signal API. This function allows you to update various group metadata
+        including the group name, description, message expiration settings, and group
+        avatar image. Only the properties you specify will be updated; other properties
+        remain unchanged. The authenticated user must have administrative privileges
+        in the group to modify its properties.
 
     .PARAMETER GroupID
-        Identifier of the group to update.
+        The ID of the Signal group to update. This parameter is mandatory.
 
     .PARAMETER Name
-        New name for the group.
+        Optional new name for the Signal group. If specified, the group will be renamed
+        to this value.
 
     .PARAMETER Description
-        New group description.
+        Optional new description for the Signal group. This text appears in group
+        information and helps members understand the group's purpose.
 
     .PARAMETER ExpirationTime
-        New message expiration time in seconds.
+        Optional message expiration time in seconds. When set, messages in the group
+        will automatically disappear after this duration. Set to 0 to disable
+        message expiration.
 
     .PARAMETER Path
-        Path to an avatar image (JPG, PNG or GIF, max 5 MB).
+        Optional path to an avatar image file for the group. Supported formats are
+        JPG, PNG, and GIF with a maximum file size of 5 MB. The image will be
+        converted to base64 and uploaded as the group avatar.
 
     .EXAMPLE
-        PS C:\> Set-SignalGroup -GroupID $id -Name "New Name"
-        Renames the group.
+        Set-SignalGroup -GroupID "group123" -Name "Updated Group Name"
+        
+        Updates the name of the specified Signal group.
+
+    .EXAMPLE
+        Set-SignalGroup -GroupID "group123" -Name "My Group" -Description "A group for team discussions"
+        
+        Updates both the name and description of the Signal group.
+
+    .EXAMPLE
+        Set-SignalGroup -GroupID "group123" -ExpirationTime 3600
+        
+        Sets message expiration to 1 hour (3600 seconds) for the group.
+
+    .EXAMPLE
+        Set-SignalGroup -GroupID "group123" -Path "C:\Images\avatar.png"
+        
+        Updates the group avatar with the specified image file.
+
+    .EXAMPLE
+        Set-SignalGroup -GroupID "group123" -Name "New Name" -Description "New description" -ExpirationTime 86400 -Path "C:\avatar.jpg"
+        
+        Updates multiple group properties in a single operation.
+
+    .NOTES
+        Requires a configured Signal account via Set-SignalConfiguration.
+        The authenticated user must have administrative privileges in the target group.
+        Avatar images are automatically converted to base64 format for upload.
+        Only specified parameters are updated; others remain unchanged.
+        Message expiration time of 0 disables automatic message deletion.
+
+    .LINK
+        New-SignalGroup
+        Get-SignalGroup
+        Remove-SignalGroups
+        Add-SignaMemberToGroup
 #>
 function Set-SignalGroup {
 	param

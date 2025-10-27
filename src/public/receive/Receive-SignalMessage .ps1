@@ -1,24 +1,76 @@
-# Receive messages
 <#
-	.SYNOPSIS
-	    Listens for incoming messages for the configured number.
+    .SYNOPSIS
+        Receives incoming Signal messages for the configured account.
 
-	.DESCRIPTION
-	    Opens the websocket endpoint '/v1/receive/<number>' and waits until the
-	    specified amount of messages has been received or the exit word is detected.
+    .DESCRIPTION
+        Establishes a WebSocket connection to the Signal REST API to listen for incoming
+        messages in real-time. The function connects to the endpoint on your signal docker 
+        container and waits for messages until the specified count is reached or an exit word is
+        detected. Messages can be displayed to the console or returned as PowerShell objects
+        for further processing. This function is useful for creating automated message
+        handlers or monitoring Signal communications.
 
-	.PARAMETER MessageCount
-	    Number of messages to wait for. Defaults to 1.
+    .PARAMETER MessageCount
+        The number of messages to wait for before automatically stopping. Default is 1.
+        Set to a higher number to receive multiple messages in a single session.
 
-	.PARAMETER asObject
-	    Return the received messages as PowerShell objects instead of writing them
-	    to the console.
+    .PARAMETER asObject
+        Switch parameter to return received messages as PowerShell objects instead of
+        displaying them to the console. Use this when you need to process messages
+        programmatically or store them for later use.
 
-	.PARAMETER ExitWord
-	    If this word is received the function stops reading from the websocket.
+    .PARAMETER ExitWord
+        Optional exit word that will cause the function to stop listening when received
+        in a message. This provides a way to remotely control the listening session
+        by sending a specific keyword.
 
-	.PARAMETER NoOutput
-	    Suppress console output while waiting for messages.
+    .PARAMETER NoOutput
+        Switch parameter to suppress console output while waiting for messages. The
+        function will still receive messages but won't display them to the console.
+        Useful when running in automated scenarios.
+
+    .EXAMPLE
+        Receive-SignalMessage
+        
+        Waits for one incoming Signal message and displays it to the console.
+
+    .EXAMPLE
+        Receive-SignalMessage -MessageCount 5
+        
+        Waits for up to 5 incoming messages before stopping.
+
+    .EXAMPLE
+        $messages = Receive-SignalMessage -MessageCount 10 -asObject
+        
+        Receives up to 10 messages and returns them as PowerShell objects for processing.
+
+    .EXAMPLE
+        Receive-SignalMessage -ExitWord "STOP" -MessageCount 100
+        
+        Listens for up to 100 messages but stops immediately if "STOP" is received.
+
+    .EXAMPLE
+        Receive-SignalMessage -NoOutput -asObject -MessageCount 5
+        
+        Silently receives 5 messages and returns them as objects without console output.
+
+    .OUTPUTS
+        System.Object[]
+        When -asObject is specified, returns an array of message objects containing
+        sender information, message content, and metadata. Otherwise, no output is returned.
+
+    .NOTES
+        Requires a configured Signal account via Set-SignalConfiguration.
+        Uses WebSocket connection for real-time message reception.
+        The function blocks execution until the specified conditions are met.
+        Network connectivity to the Signal server is required throughout the session.
+        Messages are received in real-time as they arrive at the Signal server.
+        The WebSocket connection is automatically closed when the function completes.
+
+    .LINK
+        Send-SignalMessage
+        Get-SignalConfiguration
+        Set-SignalConfiguration
 #>
 function Receive-SignalMessage {
 	[CmdletBinding(ConfirmImpact = 'None',
