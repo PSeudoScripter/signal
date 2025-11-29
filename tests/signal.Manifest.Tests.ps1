@@ -1,25 +1,42 @@
 # Tests\Signal.Manifest.Tests.ps1
 
 $manifestPath = Join-Path $PSScriptRoot '..\signal.psd1'
-$manifest     = Test-ModuleManifest -Path $manifestPath
+$manifest     = Import-PowerShellDataFile -Path $manifestPath
 $moduleRoot   = Join-Path $PSScriptRoot '..'
 $publicPath   = Join-Path $moduleRoot 'src\public'
 
 Describe 'Signal Manifest' {
-    It 'hat eine gültige Modulversion' {
-        $manifest.Version.ToString() | Should -Match '^\d+\.\d+\.\d+\.\d+$'
+    It 'has a valid module version' {
+        $manifest.ModuleVersion | Should -Match '^\d+\.\d+\.\d+\.\d+$'
     }
 
-    It 'setzt das richtige RootModule' {
+    It 'sets the correct RootModule' {
         $manifest.RootModule | Should -Be 'signal.psm1'
     }
 
-    It 'lässt sich importieren' {
+    It 'has a Description' {
+        $manifest.Description | Should -Not -BeNullOrEmpty
+    }
+
+    It 'has a CompanyName' {
+        $manifest.CompanyName | Should -Not -BeNullOrEmpty
+    }
+
+    It 'has a Author' {
+        $manifest.Author | Should -Not -BeNullOrEmpty
+    }
+
+    It 'can be imported' {
         { Import-Module $manifestPath -Force } | Should -Not -Throw
     }
+    
+    It 'FunctionsToExport has more than 0 entries' {
+        $manifest.FunctionsToExport.Count | Should -BeGreaterThan 0
+    }
+
 }
 
-Describe 'Signal Modul – Dateinamen-Validierung' {
+Describe 'Signal Modul - File name validation' {
 
     It 'keine PS1-Datei im Public-Ordner hat Leerzeichen zwischen Name und Extension' {
         $filesWithSpaces = Get-ChildItem -Path $publicPath -Filter '*.ps1' -Recurse |
@@ -27,7 +44,7 @@ Describe 'Signal Modul – Dateinamen-Validierung' {
         
         if ($filesWithSpaces) {
             $fileNames = $filesWithSpaces | ForEach-Object { $_.FullName }
-            $message = "Die folgenden Dateien haben Leerzeichen vor der .ps1-Erweiterung:`n$($fileNames -join "`n")"
+            $message = "The following files have spaces before the .ps1 extension:`n$($fileNames -join "`n")"
             throw $message
         }
         
@@ -39,24 +56,26 @@ Describe 'Signal Modul – Dateinamen-Validierung' {
 Import-Module $manifestPath -Force
 
 # Erwartete Funktionen: alle *.ps1 Dateien im public-Ordner
-$expectedFunctions = Get-ChildItem -Path $publicPath -Filter '*.ps1' |
-    ForEach-Object {
-        # Funktionsname = Dateiname ohne Extension
-        $_.BaseName
+$files = Get-ChildItem -Path $publicPath -Filter '*.ps1' -File -Recurse
+$expectedFunctions = foreach ($file in $files) {
+    $content = Get-Content $file -Raw
+    if ($content -match '^function\s+([a-zA-Z0-9\-_]+)') {
+        $matches[1]
+    }
+    else {
+        # Fallback: Dateiname als Funktionsname
+        $file.BaseName
+    }
+} 
+
+$manifest = Import-PowerShellDataFile -Path $manifestPath
+Describe 'Signal Modul - Exported public functions' {
+
+    It 'All expected functions exist as FunctionsToExport in the manifest.' {
+        $manifest.FunctionsToExport |sort-object | Should -Be ($expectedFunctions|Sort-Object)
     }
 
-Describe 'Signal Modul – Exportierte Public Funktionen' {
-
-    It 'alle erwarteten Funktionen existieren als FunctionsToExport im Manifest' {
-        $manifest = Test-ModuleManifest -Path $manifestPath
-        $manifest.FunctionsToExport |
-            Should -ContainExactly $expectedFunctions
-    }
-
-    It 'alle erwarteten Funktionen sind nach Import verfügbar' {
-        foreach ($func in $expectedFunctions) {
-            Get-Command -Name $func -Module $manifest.Name |
-                Should -Not -BeNullOrEmpty
-        }
+    It 'All expected functions are available after import.' {
+       (get-command -module Signal).name |sort-object | Should -Be ($expectedFunctions|Sort-Object)
     }
 }

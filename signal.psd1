@@ -27,7 +27,7 @@
 	CompanyName = 'PSeudoScripter'
 
 	# Copyright statement for this module
-	Copyright = '(c) PSeudoScripter. All rights reserved.'
+	Copyright = 'GNU General Public License v3.0'
 
 	# Description of the functionality provided by this module
 	Description = 'Signal module to interact with the Signal Messenger API (bbernhard/signal-cli-rest-api).'
@@ -71,6 +71,7 @@
 	# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 	FunctionsToExport = @(
         'Add-SignaMemberToGroup',
+        'Connect-SignalDevice',
         'Get-SignalAbout',
         'Get-SignalAccount',
         'Get-SignalConfiguration',
@@ -78,7 +79,6 @@
         'Get-SignalGroup',
         'Get-SignalLocalConfiguration',
         'Join-SignalGroup',
-        'Link-SignalDevice',
         'New-SignalConfiguration',
         'New-SignalGroup',
         'Receive-SignalMessage',
@@ -147,4 +147,5 @@
 	HelpInfoURI = 'https://github.com/PSeudoScripter/signal'
 
 }
+
 
