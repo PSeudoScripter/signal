@@ -44,7 +44,7 @@
 	
 	.NOTES
         This function is part of a PowerShell wrapper for signal-cli and uses the Signal REST API internally.
-		Weitere Infos: https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha
+		More Information: https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha
 #>
 function Register-SignalDevice {
 	[CmdletBinding(DefaultParameterSetName = 'Step1_C',

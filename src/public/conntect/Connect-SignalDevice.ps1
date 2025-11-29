@@ -15,17 +15,17 @@
         the linking process.
 
     .EXAMPLE
-        Link-SignalDevice -DeviceName "My Laptop"
+        Connect-SignalDevice -DeviceName "My Laptop"
         
         Generates a QR code for linking a laptop to the Signal account with the name "My Laptop".
 
     .EXAMPLE
-        Link-SignalDevice -DeviceName "Work Computer"
+        Connect-SignalDevice -DeviceName "Work Computer"
         
         Creates a linking QR code for a work computer device.
 
     .EXAMPLE
-        $qrCode = Link-SignalDevice -DeviceName "Tablet Device"
+        $qrCode = Connect-SignalDevice -DeviceName "Tablet Device"
         Write-Host "Scan this QR code with your Signal app: $($qrCode.qr_code)"
         
         Generates a QR code and displays linking instructions.
@@ -48,7 +48,7 @@
         Unregister-SignalDevice
         Remove-SignalDevice
 #>
-function Link-SignalDevice {
+function Connect-SignalDevice {
 	param (
 		[Parameter(Mandatory = $true)]
 		[string]$DeviceName

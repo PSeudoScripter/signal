@@ -69,13 +69,28 @@
 	NestedModules = @()
 
 	# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-	FunctionsToExport = @('New-SignalConfiguration', 'Get-SignalConfiguration', 'Get-SignalLocalConfiguration', 
-	               'Invoke-SignalApiRequest', 'Send-SignalMessage', 'Set-SignalConfiguration', 
-	               'Receive-SignalMessage', 'Register-SignalDevice', 
-	               'Unregister-SignalDevice', 'Link-SignalDevice', 'Get-SignalAccount', 
-	               'Get-SignalGroup', 'New-SignalGroup', 'Set-SignalGroup', 
-	               'Remove-SignalGroups', 'Get-SignalAbout', 'Get-SignalDevices', 
-	               'Remove-SignalDevice', 'Add-SignaMemberToGroup', 'Remove-SignaMemberFromGroup', 'Get-SignalAbout', 'Join-SignalGroup')
+	FunctionsToExport = @(
+        'Add-SignaMemberToGroup',
+        'Get-SignalAbout',
+        'Get-SignalAccount',
+        'Get-SignalConfiguration',
+        'Get-SignalDevices',
+        'Get-SignalGroup',
+        'Get-SignalLocalConfiguration',
+        'Join-SignalGroup',
+        'Link-SignalDevice',
+        'New-SignalConfiguration',
+        'New-SignalGroup',
+        'Receive-SignalMessage',
+        'Register-SignalDevice',
+        'Remove-SignalDevice',
+        'Remove-SignalGroups',
+        'Remove-SignaMemberFromGroup',
+        'Send-SignalMessage',
+        'Set-SignalConfiguration',
+        'Set-SignalGroup',
+        'Unregister-SignalDevice'
+    )
 
 	# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 	CmdletsToExport = @() 
@@ -132,3 +147,4 @@
 	HelpInfoURI = 'https://github.com/PSeudoScripter/signal'
 
 }
+

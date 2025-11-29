@@ -1,20 +1,72 @@
-# Send message
 <#
-	.SYNOPSIS
-	    Sends a text or attachment to one or more recipients.
+    .SYNOPSIS
+        Sends a text message and/or attachment via Signal to one or more recipients.
 
-	.DESCRIPTION
-	    Calls '/v2/send' on the Signal REST API to deliver a message to phone
-	    numbers or groups. Attachments are automatically converted to base64.
+    .DESCRIPTION
+        Sends messages through the Signal messaging service to specified recipients using the
+        Signal REST API. The function supports sending text messages, file attachments, or both.
+        Recipients can be individual phone numbers or Signal group IDs. File attachments are
+        automatically encoded to base64 and their MIME type is determined based on the file extension.
+        
+        The function requires a valid Signal configuration to be set up and uses the registered
+        phone number from the configuration to send messages.
 
-	.PARAMETER Recipients
-	    One or more phone numbers or group IDs to send to.
+    .PARAMETER Recipients
+        An array of phone numbers (in international format) or Signal group IDs to send the
+        message to. Phone numbers should include the country code (e.g., "+1234567890").
 
-	.PARAMETER Message
-	    Optional text message body.
+    .PARAMETER Message
+        The text message content to send. This parameter is optional, but either Message or
+        Path (or both) must be specified.
 
-	.PARAMETER Path
-	    Optional path to a file that will be sent as an attachment.
+    .PARAMETER Path
+        The file path to an attachment to send along with the message. The file must exist
+        and will be automatically encoded to base64. Supports images, videos, documents and
+        text files. This parameter is optional, but either Message or Path (or both) must
+        be specified.
+
+    .EXAMPLE
+        Send-SignalMessage -Recipients "+1234567890" -Message "Hello from PowerShell!"
+        
+        Sends a simple text message to a single recipient.
+
+    .EXAMPLE
+        Send-SignalMessage -Recipients @("+1234567890", "+0987654321") -Message "Group message"
+        
+        Sends a text message to multiple recipients.
+
+    .EXAMPLE
+        Send-SignalMessage -Recipients "+1234567890" -Path "C:\Documents\report.pdf"
+        
+        Sends a file attachment without a text message.
+
+    .EXAMPLE
+        Send-SignalMessage -Recipients "+1234567890" -Message "Here's the report" -Path "C:\Documents\report.pdf"
+        
+        Sends both a text message and a file attachment.
+
+    .EXAMPLE
+        $groupId = "group.12345abcdef"
+        Send-SignalMessage -Recipients $groupId -Message "Hello group!"
+        
+        Sends a message to a Signal group using the group ID.
+
+    .OUTPUTS
+        System.Object
+        Returns the response from the Signal API indicating the success or failure of the message delivery.
+
+    .NOTES
+        - Requires a valid Signal configuration to be set up using New-SignalConfiguration.
+        - The registered phone number from the configuration is used as the sender.
+        - File attachments are automatically converted to base64 encoding.
+        - MIME types are determined automatically based on file extensions.
+        - Supported file types include images, videos, documents, and text files.
+        - Either Message or Path (or both) parameters must be provided.
+
+    .LINK
+        New-SignalConfiguration
+        Get-SignalConfiguration
+        Receive-SignalMessage
 #>
 function Send-SignalMessage {
 	param
